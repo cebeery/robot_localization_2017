@@ -114,13 +114,21 @@ class ParticleFilter:
 
         self.current_odom_xy_theta = []
 
-        # request the map from the map server, the map should be of type nav_msgs/OccupancyGrid
-        # TODO: fill in the appropriate service call here.  The resultant map should be assigned be passed
-        #       into the init method for OccupancyField
+        # request the map of type nav_msgs/OccupancyGrid from the map server for use in creating occupancy field
+        map = self.map_client() 
+        self.occupancy_field = OccupancyField(map)
 
-        # for now we have commented out the occupancy field initialization until you can successfully fetch the map
-        #self.occupancy_field = OccupancyField(map)
         self.initialized = True
+
+    def map_client(self):
+        """ Calls map_server for static map """
+    	rospy.wait_for_service('static_map') #maybe map_server
+        try:
+            static_map = rospy.ServiceProxy('static_map', GetMap)
+            return static_map().map #return map attribute
+        except rospy.ServiceException, e:
+            print "Static Map Retrieve Service call failed: %s"%e
+
 
     def update_robot_pose(self):
         """ Update the estimate of the robot's pose given the updated particles.
@@ -220,15 +228,38 @@ class ParticleFilter:
         if xy_theta == None:
             xy_theta = convert_pose_to_xy_and_theta(self.odom_pose.pose)
         self.particle_cloud = []
-        # TODO create particles
 
+        #seperate xy_theta components
+        sigma = 0.5  #initial distribution
+
+        #create noisy initial particle distribution
+        for i in range(0, self.n_particles-1):
+            x = gauss(xy_theta[0], sigma)
+            y = gauss(xy_theta[1], sigma)
+            theta = gauss(xy_theta[2], sigma)           
+            self.particle_cloud.append(Particle(x=x, y=y, theta=theta)) #no noise particle
+
+	#Normalize and update robot
         self.normalize_particles()
         self.update_robot_pose()
 
     def normalize_particles(self):
-        """ Make sure the particle weights define a valid distribution (i.e. sum to 1.0) """
-        pass
-        # TODO: implement this
+        """ Make sure the particle weights define a valid distribution (i.e. sum to 1.0) """       
+     
+        #sum current weights
+        sum = 0
+        for i in self.particle_cloud:
+            sum += i.w
+
+	#adjust weight based on orginal sum of weights
+        for i in self.particle_cloud:
+            i.w = i.w/sum
+
+        #verify
+        sum = 0
+        for i in self.particle_cloud:
+            sum += i.w
+        print sum
 
     def publish_particles(self, msg):
         particles_conv = []
