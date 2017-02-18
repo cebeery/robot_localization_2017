@@ -122,7 +122,7 @@ class ParticleFilter:
 
     def map_client(self):
         """ Calls map_server for static map """
-    	rospy.wait_for_service('static_map') #maybe map_server
+    	rospy.wait_for_service('static_map') 
         try:
             static_map = rospy.ServiceProxy('static_map', GetMap)
             return static_map().map #return map attribute
@@ -134,14 +134,66 @@ class ParticleFilter:
         """ Update the estimate of the robot's pose given the updated particles.
             There are two logical methods for this:
                 (1): compute the mean pose
-                (2): compute the most likely pose (i.e. the mode of the distribution)
+                (2): compute the weighted mean pose
+                (3): compute the most likely pose (i.e. the mode of the distribution)
         """
         # first make sure that the particle weights are normalized
         self.normalize_particles()
 
-        # TODO: assign the lastest pose into self.robot_pose as a geometry_msgs.Pose object
-        # just to get started we will fix the robot's pose to always be at the origin
+        # TODO: assign the lastest pose into self.robot_pose as a geometry_msgs.Pose object --> chose implimentation after testing
+
+        # Possible issues not accounted for: 
+        # a) mean split to 180 when across 360-0 
+        # b) multiple nodes (point groups or high likelihood areas)
+
+        x = 0
+        y = 0
+        theta = 0
+
+        """
+        # (1) Calculate mean of point cloud poses 
+        for i in self.particle_cloud:
+            x += i.x / self.n_particles
+            y += i.y / self.n_particles
+            theta += i.theta / self.n_particles
+        """ 
+
+        #"""
+  	# (2) Calculate weighted mean
+        for i in self.particle_cloud:
+            x += i.x * i.w
+            y += i.y * i.w
+            theta += i.theta * i.w 
+        #""" 
+        
+        """ 
+        # (3) Calculate mode
+ 
+        nodes = [Particle(w=0.0)]
+        # note highest weigh particles
+        for i in self.particle_cloud:
+            if i.w > nodes[0].w:
+                #if particle has higher weight than those currently tracked, overwrite tracker
+                nodes = [i] 
+            elif i.w == nodes[0].w:
+                #if particle has same weight than those currently tracked, add to tracker
+                nodes.append(i)
+            else:
+                pass
+
+        # use first point in list
+        # *** better if chose closest to current pose ?  -- not implimented yet
+        x = nodes[0].x
+        y = nodes[0].y
+        theta = nodes[0].theta
+        print("Robot Pose as First Mode of " + str(len(nodes))) #print number of nodes to determine brute force feasibility
+        """
+
+        # update robot pose 
         self.robot_pose = Pose()
+        self.robot_pose.position.x = x
+        self.robot_pose.position.y = y
+        self.robot_pose.orientation.z = theta
 
     def update_particles_with_odom(self, msg):
         """ Update the particles using the newly given odometry pose.
@@ -230,7 +282,7 @@ class ParticleFilter:
         self.particle_cloud = []
 
         #seperate xy_theta components
-        sigma = 0.5  #initial distribution
+        sigma = 0.5  #initial distribution spread
 
         #create noisy initial particle distribution
         for i in range(0, self.n_particles-1):
@@ -255,11 +307,11 @@ class ParticleFilter:
         for i in self.particle_cloud:
             i.w = i.w/sum
 
-        #verify
-        sum = 0
-        for i in self.particle_cloud:
-            sum += i.w
-        print sum
+        ##verify
+        #sum = 0
+        #for i in self.particle_cloud:
+        #    sum += i.w
+        #print sum
 
     def publish_particles(self, msg):
         particles_conv = []
