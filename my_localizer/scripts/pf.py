@@ -199,14 +199,13 @@ class ParticleFilter:
         
         # calc quaterion from yaw
         quat = quaternion_from_euler(0,0,theta)
-        print quat
+
         # update robot pose 
         self.robot_pose = Pose()
         self.robot_pose.position.x = x
         self.robot_pose.position.y = y
         self.robot_pose.orientation.z = quat[2]
         self.robot_pose.orientation.w = quat[3]
-        print self.robot_pose 
 
     def projected_scan_received(self, msg):
         self.last_projected_stable_scan = msg
