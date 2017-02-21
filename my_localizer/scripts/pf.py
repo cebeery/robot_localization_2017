@@ -196,7 +196,7 @@ class ParticleFilter:
         theta = nodes[0].theta
         print("Robot Pose as First Mode of " + str(len(nodes))) #print number of nodes to determine brute force feasibility
         """
-
+        
         # update robot pose 
         self.robot_pose = Pose()
         self.robot_pose.position.x = x
@@ -227,8 +227,14 @@ class ParticleFilter:
             self.current_odom_xy_theta = new_odom_xy_theta
             return
 
-        # TODO: modify particles using delta
+        # TODO: modify particles using delta -- needs noise
         # For added difficulty: Implement sample_motion_odometry (Prob Rob p 136)
+
+        for i in self.particle_cloud:
+            i.x += delta[0]
+            i.y += delta[1]
+            i.theta += delta[2]
+
 
     def map_calc_range(self,x,y,theta):
         """ Difficulty Level 3: implement a ray tracing likelihood model... Let me know if you are interested """
