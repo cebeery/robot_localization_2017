@@ -257,8 +257,8 @@ class ParticleFilter:
     def update_particles_with_laser(self, msg):
         """ Updates the particle weights in response to the scan contained in the msg """
         
-        # TODO: implement this for all ranges
-        sigma = 0.2 #arbitrary expected laser noise
+        # TODO: implement this for all ranges and deal with no laser scans values
+        sigma = 0.2 #arbitrary expected laser noise *******
         scan_x = msg.ranges[0]
 
         for i in self.particle_cloud:
