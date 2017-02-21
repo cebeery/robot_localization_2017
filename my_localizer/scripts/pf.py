@@ -236,7 +236,7 @@ class ParticleFilter:
 
         # TODO: modify particles using delta -- needs noise
         # For added difficulty: Implement sample_motion_odometry (Prob Rob p 136)
-        sigma = .1
+        sigma = 0.2
 
         for i in self.particle_cloud:
             i.x += gauss(delta[0], sigma)
