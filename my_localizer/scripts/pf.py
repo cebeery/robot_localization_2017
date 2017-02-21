@@ -236,11 +236,12 @@ class ParticleFilter:
 
         # TODO: modify particles using delta -- needs noise
         # For added difficulty: Implement sample_motion_odometry (Prob Rob p 136)
+        sigma = .1
 
         for i in self.particle_cloud:
-            i.x += delta[0]
-            i.y += delta[1]
-            i.theta += delta[2]
+            i.x += gauss(delta[0], sigma)
+            i.y += gauss(delta[1], sigma)
+            i.theta += gauss(delta[2], sigma)
 
 
     def map_calc_range(self,x,y,theta):
