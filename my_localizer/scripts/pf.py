@@ -253,6 +253,15 @@ class ParticleFilter:
         """
         # make sure the distribution is normalized
         self.normalize_particles()
+
+        likelihood = []
+        for i in self.particle_cloud:
+	    likelihood.append(i.w)
+
+        self.particle_cloud = self.draw_random_sample(self.particle_cloud, likehood, self.n_particles)
+
+
+
         # TODO: fill out the rest of the implementation
 
     def update_particles_with_laser(self, msg):
