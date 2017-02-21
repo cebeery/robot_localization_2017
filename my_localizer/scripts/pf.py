@@ -13,7 +13,7 @@ from copy import deepcopy
 import tf
 from tf import TransformListener
 from tf import TransformBroadcaster
-from tf.transformations import euler_from_quaternion, rotation_matrix, quaternion_from_matrix
+from tf.transformations import euler_from_quaternion, rotation_matrix, quaternion_from_matrix, quaternion_from_euler
 from random import gauss
 
 import math
@@ -197,11 +197,16 @@ class ParticleFilter:
         print("Robot Pose as First Mode of " + str(len(nodes))) #print number of nodes to determine brute force feasibility
         """
         
+        # calc quaterion from yaw
+        quat = quaternion_from_euler(0,0,theta)
+        print quat
         # update robot pose 
         self.robot_pose = Pose()
         self.robot_pose.position.x = x
         self.robot_pose.position.y = y
-        self.robot_pose.orientation.z = theta
+        self.robot_pose.orientation.z = quat[2]
+        self.robot_pose.orientation.w = quat[3]
+        print self.robot_pose 
 
     def projected_scan_received(self, msg):
         self.last_projected_stable_scan = msg
