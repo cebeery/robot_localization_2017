@@ -6,6 +6,7 @@ project(my_localizer)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  visualization_msgs
   nav_msgs
   rospy
   sensor_msgs
