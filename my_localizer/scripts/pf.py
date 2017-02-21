@@ -6,7 +6,7 @@ import rospy
 
 from std_msgs.msg import Header, String
 from sensor_msgs.msg import LaserScan, PointCloud
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, PoseArray, Pose, Point, Quaternion
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, PoseArray, Pose, Point, Quaternion 
 from nav_msgs.srv import GetMap
 from copy import deepcopy
 
@@ -104,6 +104,9 @@ class ParticleFilter:
         # publish the current particle cloud.  This enables viewing particles in rviz.
         self.particle_pub = rospy.Publisher("particlecloud", PoseArray, queue_size=10)
 
+        # publish the markers for debugging in rviz, including top 3 weights
+        #self.marker_pub = rospy.Publisher("markers", Markers, queue_size=10)
+
         # laser_subscriber listens for data from the lidar
         rospy.Subscriber(self.scan_topic, LaserScan, self.scan_received)
 
@@ -158,21 +161,21 @@ class ParticleFilter:
         y = 0
         theta = 0
 
-        """
+        #"""
         # (1) Calculate mean of point cloud poses 
         for i in self.particle_cloud:
             x += i.x / self.n_particles
             y += i.y / self.n_particles
             theta += i.theta / self.n_particles
-        """ 
+        #""" 
 
-        #"""
+        """
   	# (2) Calculate weighted mean
         for i in self.particle_cloud:
             x += i.x * i.w
             y += i.y * i.w
             theta += i.theta * i.w 
-        #""" 
+        """ 
         
         """ 
         # (3) Calculate mode
@@ -253,8 +256,27 @@ class ParticleFilter:
 
     def update_particles_with_laser(self, msg):
         """ Updates the particle weights in response to the scan contained in the msg """
-        # TODO: implement this
-        pass
+        
+        # TODO: implement this for all ranges
+        sigma = 0.2 #arbitrary expected laser noise
+        scan_x = msg.ranges[0]
+
+        for i in self.particle_cloud:
+            # find closest map obstacle distance from scan at head
+            d = self.occupancy_field.get_closest_obstacle_distance(i.x + scan_x,i.y) 
+            # set partical weight to guassian likelihood       
+            i.w = math.exp(-0.5*(d/sigma)**2)
+        
+        self.normalize_particles()
+
+        """
+        # single point test
+        test_pt = self.particle_cloud[0]    
+        test_scan_x = msg.ranges[0]        
+        closest = self.occupancy_field.get_closest_obstacle_distance(test_pt.x + test_scan_x,test_pt.y)        
+        likelihood = math.exp(-0.5*(closest/sigma)**2)
+        print("closest: " + str(closest) + "; likelihood: " + str(likelihood))
+        """
 
     @staticmethod
     def draw_random_sample(choices, probabilities, n):
