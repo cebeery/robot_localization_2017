@@ -88,8 +88,8 @@ class ParticleFilter:
 
         self.n_particles = 200          # the number of particles to use
 
-        self.d_thresh = 0.2             # the amount of linear movement before performing an update
-        self.a_thresh = math.pi/6       # the amount of angular movement before performing an update
+        self.d_thresh = 0.1             # the amount of linear movement before performing an update
+        self.a_thresh = math.pi/8       # the amount of angular movement before performing an update
 
         self.laser_max_distance = 2.0   # maximum penalty to assess in the likelihood field model
 
@@ -234,7 +234,7 @@ class ParticleFilter:
         rot2 = delta[2] - rot1
 
         #noise factor
-        sigma = 0.2
+        sigma = 0.05
 
         #apply transforms then noise        
         for i in self.particle_cloud:
@@ -280,17 +280,28 @@ class ParticleFilter:
         
         # TODO: implement this for all ranges and deal with no laser scans values
 
-        sigma = 0.2 #arbitrary expected laser noise *******
-        scan = msg.ranges[0]
-
+        laser_noise = 0.2 #arbitrary expected laser noise *******
+        ##scan = msg.ranges[]
+        
         for i in self.particle_cloud:
-            #calculated expected scanned location for particle
-            scan_x = i.x + scan*math.cos(i.theta)
-            scan_y = i.y + scan*math.sin(i.theta)
-            # find closest map obstacle distance from scanned location
-            d = self.occupancy_field.get_closest_obstacle_distance(scan_x,scan_y) 
-            # set partical weight to guassian likelihood       
-            i.w = math.exp(-0.5*(d/sigma)**2)
+            likelihood_list = []
+            #for ranges in laser scan
+            for scan_angle in range(0,360):
+                scan = msg.ranges[scan_angle]
+                #for seen scans
+                if scan:     
+                    #calculated expected scanned location for particle
+                    scan_x = i.x + scan*math.cos(i.theta + math.radians(scan_angle))
+                    scan_y = i.y + scan*math.sin(i.theta + math.radians(scan_angle))
+                    # find closest map obstacle distance from scanned location
+                    d = self.occupancy_field.get_closest_obstacle_distance(scan_x,scan_y)
+                    # set partical weight to guassian likelihood 
+                    likelihood_list.append(math.exp(-0.5*(d/laser_noise)**2)
+            #sum cubed likelihoods 
+            #***
+
+
+            
         
         self.normalize_particles()
 
