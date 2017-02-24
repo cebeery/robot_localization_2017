@@ -86,7 +86,7 @@ class ParticleFilter:
         self.odom_frame = "odom"        # the name of the odometry coordinate frame
         self.scan_topic = "scan"        # the topic where we will get laser scans from 
 
-        self.n_particles = 300          # the number of particles to use
+        self.n_particles = 200          # the number of particles to use
 
         self.d_thresh = 0.2             # the amount of linear movement before performing an update
         self.a_thresh = math.pi/6       # the amount of angular movement before performing an update
@@ -229,7 +229,7 @@ class ParticleFilter:
             return
 
         # Steps for particle motion
-        rot1 = math.tan2(delta[1],delta[0]) - self.current_odom_xy_theta[2]
+        rot1 = math.atan2(delta[1],delta[0]) - self.current_odom_xy_theta[2]
         tran = math.sqrt(delta[0]**2 + delta[1]**2)
         rot2 = delta[2] - rot1
 
@@ -246,10 +246,11 @@ class ParticleFilter:
             #apply 2nd rotation, to delta_theta
             i.theta += rot2
 
-            #Apply noise
+            """#Apply noise
             i.x += gauss(i.x, sigma)
             i.y += gauss(i.y, sigma)
             i.theta += gauss(i.theta, sigma)
+            """
 
 
     def map_calc_range(self,x,y,theta):
