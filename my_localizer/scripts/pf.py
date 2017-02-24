@@ -54,7 +54,6 @@ class Particle(object):
         orientation_tuple = tf.transformations.quaternion_from_euler(0,0,self.theta)
         return Pose(position=Point(x=self.x,y=self.y,z=0), orientation=Quaternion(x=orientation_tuple[0], y=orientation_tuple[1], z=orientation_tuple[2], w=orientation_tuple[3]))
 
-    # TODO: define additional helper functions if needed
 
 class ParticleFilter:
     """ The class that represents a Particle Filter ROS Node
@@ -94,8 +93,6 @@ class ParticleFilter:
 
         self.laser_max_distance = 2.0   # maximum penalty to assess in the likelihood field model
 
-        # TODO: define additional constants if needed
-
         # Setup pubs and subs
 
         # pose_listener responds to selection of a new approximate robot location (for instance using rviz)
@@ -103,9 +100,6 @@ class ParticleFilter:
 
         # publish the current particle cloud.  This enables viewing particles in rviz.
         self.particle_pub = rospy.Publisher("particlecloud", PoseArray, queue_size=10)
-
-        # publish the markers for debugging in rviz, including top 3 weights
-        #self.marker_pub = rospy.Publisher("markers", Markers, queue_size=10)
 
         # laser_subscriber listens for data from the lidar
         rospy.Subscriber(self.scan_topic, LaserScan, self.scan_received)
@@ -234,14 +228,28 @@ class ParticleFilter:
             self.current_odom_xy_theta = new_odom_xy_theta
             return
 
-        # TODO: modify particles using delta -- needs noise
-        # For added difficulty: Implement sample_motion_odometry (Prob Rob p 136)
+        # Steps for particle motion
+        rot1 = math.tan2(delta[1],delta[0]) - self.current_odom_xy_theta[2]
+        tran = math.sqrt(delta[0]**2 + delta[1]**2)
+        rot2 = delta[2] - rot1
+
+        #noise factor
         sigma = 0.2
 
+        #apply transforms then noise        
         for i in self.particle_cloud:
-            i.x += gauss(delta[0], sigma)
-            i.y += gauss(delta[1], sigma)
-            i.theta += gauss(delta[2], sigma)
+            #apply 1st rotation, toward delta_xy
+            i.theta += rot1
+            #apply translation, to delta_xy
+            i.x += tran*math.cos(i.theta)
+            i.y += tran*math.sin(i.theta)
+            #apply 2nd rotation, to delta_theta
+            i.theta += rot2
+
+            #Apply noise
+            i.x += gauss(i.x, sigma)
+            i.y += gauss(i.y, sigma)
+            i.theta += gauss(i.theta, sigma)
 
 
     def map_calc_range(self,x,y,theta):
@@ -270,25 +278,20 @@ class ParticleFilter:
         """ Updates the particle weights in response to the scan contained in the msg """
         
         # TODO: implement this for all ranges and deal with no laser scans values
+
         sigma = 0.2 #arbitrary expected laser noise *******
-        scan_x = msg.ranges[0]
+        scan = msg.ranges[0]
 
         for i in self.particle_cloud:
-            # find closest map obstacle distance from scan at head
-            d = self.occupancy_field.get_closest_obstacle_distance(i.x + scan_x,i.y) 
+            #calculated expected scanned location for particle
+            scan_x = i.x + scan*math.cos(i.theta)
+            scan_y = i.y + scan*math.sin(i.theta)
+            # find closest map obstacle distance from scanned location
+            d = self.occupancy_field.get_closest_obstacle_distance(scan_x,scan_y) 
             # set partical weight to guassian likelihood       
             i.w = math.exp(-0.5*(d/sigma)**2)
         
         self.normalize_particles()
-
-        """
-        # single point test
-        test_pt = self.particle_cloud[0]    
-        test_scan_x = msg.ranges[0]        
-        closest = self.occupancy_field.get_closest_obstacle_distance(test_pt.x + test_scan_x,test_pt.y)        
-        likelihood = math.exp(-0.5*(closest/sigma)**2)
-        print("closest: " + str(closest) + "; likelihood: " + str(likelihood))
-        """
 
     @staticmethod
     def draw_random_sample(choices, probabilities, n):
