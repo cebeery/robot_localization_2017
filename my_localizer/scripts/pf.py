@@ -88,8 +88,8 @@ class ParticleFilter:
 
         self.n_particles = 200          # the number of particles to use
 
-        self.d_thresh = 0.1             # the amount of linear movement before performing an update
-        self.a_thresh = math.pi/8       # the amount of angular movement before performing an update
+        self.d_thresh = 0.2             # the amount of linear movement before performing an update
+        self.a_thresh = math.pi/6       # the amount of angular movement before performing an update
 
         self.laser_max_distance = 2.0   # maximum penalty to assess in the likelihood field model
 
@@ -148,28 +148,32 @@ class ParticleFilter:
         # TODO: assign the lastest pose into self.robot_pose as a geometry_msgs.Pose object --> chose implimentation after testing
 
         # Possible issues not accounted for: 
-        # a) mean split to 180 when across 360-0 
-        # b) multiple nodes (point groups or high likelihood areas)
+        # a) multiple nodes (point groups or high likelihood areas)
 
         x = 0
         y = 0
-        theta = 0
+        thetaX = 0
+        thetaY = 0
 
-        #"""
+        """
         # (1) Calculate mean of point cloud poses 
         for i in self.particle_cloud:
             x += i.x / self.n_particles
             y += i.y / self.n_particles
-            theta += i.theta / self.n_particles
-        #""" 
+            thetaX += math.cos(i.theta) / self.n_particles
+            thetaY += math.sin(i.theta) / self.n_particles
+        theta = math.atan2(thetaY,thetaX)
+        """ 
 
-        """
+        #"""
   	# (2) Calculate weighted mean
         for i in self.particle_cloud:
             x += i.x * i.w
             y += i.y * i.w
-            theta += i.theta * i.w 
-        """ 
+            thetaX += math.cos(i.theta) * i.w
+            thetaY += math.sin(i.theta) * i.w
+        theta = math.atan2(thetaY,thetaX) 
+        #""" 
         
         """ 
         # (3) Calculate mode
@@ -191,7 +195,7 @@ class ParticleFilter:
         x = nodes[0].x
         y = nodes[0].y
         theta = nodes[0].theta
-        print("Robot Pose as First Mode of " + str(len(nodes))) #print number of nodes to determine brute force feasibility
+        #print("Robot Pose as First Mode of " + str(len(nodes))) #print number of nodes to determine brute force feasibility
         """
         
         # calc quaterion from yaw
@@ -234,23 +238,18 @@ class ParticleFilter:
         rot2 = delta[2] - rot1
 
         #noise factor
-        sigma = 0.05
+        sigmaTrans = 0.04
+        sigmaAngle = 0.15
 
         #apply transforms then noise        
         for i in self.particle_cloud:
             #apply 1st rotation, toward delta_xy
             i.theta += rot1
             #apply translation, to delta_xy
-            i.x += tran*math.cos(i.theta)
-            i.y += tran*math.sin(i.theta)
+            i.x += gauss(tran*math.cos(i.theta), sigmaTrans)
+            i.y += gauss(tran*math.sin(i.theta), sigmaTrans)
             #apply 2nd rotation, to delta_theta
-            i.theta += rot2
-
-            """#Apply noise
-            i.x += gauss(i.x, sigma)
-            i.y += gauss(i.y, sigma)
-            i.theta += gauss(i.theta, sigma)
-            """
+            i.theta += gauss(rot2, sigmaAngle)
 
 
     def map_calc_range(self,x,y,theta):
@@ -277,14 +276,12 @@ class ParticleFilter:
 
     def update_particles_with_laser(self, msg):
         """ Updates the particle weights in response to the scan contained in the msg """
-        
-        # TODO: implement this for all ranges and deal with no laser scans values
 
-        laser_noise = 0.2 #arbitrary expected laser noise *******
-        ##scan = msg.ranges[]
-        
+        laser_noise = 0.1 #arbitrary expected laser noise *******
+        squasher = 3
+
         for i in self.particle_cloud:
-            likelihood_list = []
+            cumulative_likes = 0
             #for ranges in laser scan
             for scan_angle in range(0,360):
                 scan = msg.ranges[scan_angle]
@@ -296,12 +293,9 @@ class ParticleFilter:
                     # find closest map obstacle distance from scanned location
                     d = self.occupancy_field.get_closest_obstacle_distance(scan_x,scan_y)
                     # set partical weight to guassian likelihood 
-                    likelihood_list.append(math.exp(-0.5*(d/laser_noise)**2)
-            #sum cubed likelihoods 
-            #***
-
-
-            
+                    likelihood = (math.exp(-0.5*(d/laser_noise)**2))
+                    # sum cubes to get full scan lieklihood with supressed bad values
+                    cumulative_likes += likelihood**squasher            
         
         self.normalize_particles()
 
