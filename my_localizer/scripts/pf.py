@@ -295,7 +295,8 @@ class ParticleFilter:
                     # set partical weight to guassian likelihood 
                     likelihood = (math.exp(-0.5*(d/laser_noise)**2))
                     # sum cubes to get full scan lieklihood with supressed bad values
-                    cumulative_likes += likelihood**squasher            
+                    cumulative_likes += likelihood**squasher 
+            i.w = cumulative_likes            
         
         self.normalize_particles()
 
