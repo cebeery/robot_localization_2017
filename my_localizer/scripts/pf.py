@@ -143,8 +143,8 @@ class ParticleFilter:
     def update_robot_pose(self):
         """ Update the estimate of the robot's pose given the updated particles.
                 (1): compute the mean pose
-                (2): compute the weighted mean pose <--used
-                (3): compute the most likely pose
+                (2): compute the weighted mean pose 
+                (3): compute the most likely pose <--used
         """
         # first make sure that the particle weights are normalized
         self.normalize_particles()
@@ -166,7 +166,6 @@ class ParticleFilter:
             thetaX += math.cos(i.theta) / self.n_particles
             thetaY += math.sin(i.theta) / self.n_particles
         theta = math.atan2(thetaY,thetaX)
-        """ 
 
   	# (2) Calculate weighted mean
         for i in self.particle_cloud:
@@ -174,32 +173,21 @@ class ParticleFilter:
             y += i.y * i.w
             thetaX += math.cos(i.theta) * i.w
             thetaY += math.sin(i.theta) * i.w
-        theta = math.atan2(thetaY,thetaX) 
-        
-        """ 
+        theta = math.atan2(thetaY,thetaX)  
+        """       
+
         # (3) Calculate mode
- 
-        nodes = [Particle(w=0.0)]
+        nodes = Particle(w=0.0)
         # note highest weigh particles
         for i in self.particle_cloud:
-            if i.w > nodes[0].w:
-                #if particle has higher weight than those currently tracked, overwrite tracker
-                nodes = [i] 
-            elif i.w == nodes[0].w:
-                #if particle has same weight than those currently tracked, add to tracker
-                nodes.append(i)
-            else:
-                pass
+            if i.w > nodes.w:
+                #if particle has higher weight than that currently tracked, overwrite tracker
+                nodes = i 
 
-        # use first point in list
-        # ***(not implimented yet) better if chose closest to current pose ??  
-        x = nodes[0].x
-        y = nodes[0].y
-        theta = nodes[0].theta
-        #print number of nodes to determine brute force pick closest feasibility
-        #print("Robot Pose as First Mode of " + str(len(nodes))) 
-        """
-        
+        # set x,y,theta   
+        x = nodes.x
+        y = nodes.y
+        theta = nodes.theta       
         # calc quaterion from yaw
         quat = quaternion_from_euler(0,0,theta)
 
