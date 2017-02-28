@@ -29,6 +29,7 @@ The result was particles persisted even when in clearly incorrect locations of t
 [pic]
 
 <h3>Possible Future Improvements</h3>
+If we had more time, we would work on tuning the parameters for weighting and odom motion noise. We would especially look at what happens as the robot turns corners, because it’s at its most inaccurate as it goes around bends. We would have also liked to make our own map and bag files, as it seems very interesting.
 
 <h3>Lessons Learned</h3>
-
+We found that it is very helpful to pair program as well as “rubber-ducking” while coding, as it helps us work through our logic as we code. We also found that using a lot of small functions with known inputs and outputs was nice as we could focus on one small section and can test functions separately. Another important lesson we learned is that we work best with frequent but short (1-2 hr) meetings so that we don’t get bogged down hitting our heads against code or logic. Finally, we found that using the whiteboards in ac109 to write our logic and code is useful as it gives us a chance to improve our understanding and identify issues.
