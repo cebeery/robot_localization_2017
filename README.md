@@ -22,11 +22,11 @@ The weighting code was completed in two phases. The first was weighting the part
 
 Finally implemented weighting based on all the laser scan range. This involved updating the expected obstacle locations given by the laser scan values to take into account the direction of the laser scan not just the particle. No return scans were discarded.  Additionally the cubed likelihood given at each scan direction per particle was summed. Cubing the likelihoods cause low likelihood values to be squashed. This makes the system look for the “most good” particle instead of the “least bad” particle.  It would be too easy to disregard an accurate particle based on one or two bad laser readings caused by noise or only slight misalignment with a wall’s corner. Squashing bad values makes this problem go away while keeping good values. Originally we forgot to set the calculated summed likelihood to the weight of the particle. 
 
-<img src="Documentation/not_working.png" alt="Filter not working" width="60%" height="60%" align="middle"/>
+<img src="Documentation/not_working.png" alt="Filter not working" width="60%" height="60%" align="right"/>
 
 The result was particles persisted even when in clearly incorrect locations of the map. Luckily a combination of rubber ducking with a NINJA and rereading and writing out code process for comprehension allowed this error to be discovered. 
 
-<img src="Documentation/working.png" alt="Filter working" width="60%" height="60%" align="middle"/>
+<img src="Documentation/working.png" alt="Filter working" width="60%" height="60%" align="right"/>
 
 <h3>Possible Future Improvements</h3>
 If we had more time, we would work on tuning the parameters for weighting and odom motion noise. We would especially look at what happens as the robot turns corners, because it’s at its most inaccurate as it goes around bends. We would have also liked to make our own map and bag files, as it seems very interesting.
