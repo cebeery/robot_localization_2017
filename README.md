@@ -28,6 +28,8 @@ The result was particles persisted even when in clearly incorrect locations of t
 
 <img src="Documentation/working.png" alt="Filter working" width="60%" height="60%" align="bottom"/>
 
+The bag files for the filter in action can be found [here](my_localizer/bags) . These bags are suffixed with \_filtered.
+
 <h3>Possible Future Improvements</h3>
 If we had more time, we would work on tuning the parameters for weighting and odom motion noise. We would especially look at what happens as the robot turns corners, because it’s at its most inaccurate as it goes around bends. We would have also liked to make our own map and bag files, as it seems very interesting.
 
