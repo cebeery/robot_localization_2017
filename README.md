@@ -1,5 +1,5 @@
 # robot_localization_2017
-This is Claire Beery and Paul Krussel's repo for the robot  localization assignment in CompRobo, spring 2017.
+This is Claire Beery and Paul Krusell's repo for the robot  localization assignment in CompRobo, spring 2017.
 
 <h3>Goal</h3>
 
@@ -12,7 +12,7 @@ Next we set up three robot pose update options - the mean of the particles’ po
 
 After implementing the robot pose update, we began updating the particle positions due to the motion of the robot. We initially did not include noise in the odom motion update to allow for testing if motion was correct. We spent a lot of time understanding and correctly calculating the positions of the particles after we updated them. At first we simply were just adding the new angle and distance to the old angle and distance, but realized that that didn’t take into account the correct changes in direction, and modified our code so that we added each change in direction or distance in the correct order. Namely, we changed the code to have each particle rotated toward the delta change in translation then move in that direction along the displacement of the translation delta, and finish by rotating the remating rotation deltat not account for by the rotation to the translation displacement direction.  
 
-[pic]
+![odom update](https://github.com/cebeery/robot_localization_2017/blob/master/Documentation/particle_filter_updates.png)
 
 We had a similar problem in our laser scan weighting function.  The direction the scan being set as relative to the odom frame and not accounting for the rotation of the particle. This cause the expected location of objects according to the particle to be incorrect due to calculation errors instead of particle location error. This was later fixed to declare the scan directions in odom to be set by the orientation of the particle and the direction of the scan relative to the particle. 
 
@@ -22,11 +22,11 @@ The weighting code was completed in two phases. The first was weighting the part
 
 Finally implemented weighting based on all the laser scan range. This involved updating the expected obstacle locations given by the laser scan values to take into account the direction of the laser scan not just the particle. No return scans were discarded.  Additionally the cubed likelihood given at each scan direction per particle was summed. Cubing the likelihoods cause low likelihood values to be squashed. This makes the system look for the “most good” particle instead of the “least bad” particle.  It would be too easy to disregard an accurate particle based on one or two bad laser readings caused by noise or only slight misalignment with a wall’s corner. Squashing bad values makes this problem go away while keeping good values. Originally we forgot to set the calculated summed likelihood to the weight of the particle. 
 
-[pic]
+<img src="Documentation/not_working.png" alt="Filter not working" width="60%" height="60%" align="bottom"/>
 
 The result was particles persisted even when in clearly incorrect locations of the map. Luckily a combination of rubber ducking with a NINJA and rereading and writing out code process for comprehension allowed this error to be discovered. 
 
-[pic]
+<img src="Documentation/working.png" alt="Filter working" width="60%" height="60%" align="bottom"/>
 
 <h3>Possible Future Improvements</h3>
 If we had more time, we would work on tuning the parameters for weighting and odom motion noise. We would especially look at what happens as the robot turns corners, because it’s at its most inaccurate as it goes around bends. We would have also liked to make our own map and bag files, as it seems very interesting.
