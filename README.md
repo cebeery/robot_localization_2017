@@ -26,7 +26,7 @@ Finally implemented weighting based on all the laser scan range. This involved u
 
 The result was particles persisted even when in clearly incorrect locations of the map. Luckily a combination of rubber ducking with a NINJA and rereading and writing out code process for comprehension allowed this error to be discovered. 
 
-![sampling filter](https://github.com/cebeery/robot_localization_2017/tree/master/Documentation/working.png)
+![sampling filter](https://github.com/cebeery/robot_localization_2017/blob/master/Documentation/working.png)
 
 <h3>Possible Future Improvements</h3>
 If we had more time, we would work on tuning the parameters for weighting and odom motion noise. We would especially look at what happens as the robot turns corners, because it’s at its most inaccurate as it goes around bends. We would have also liked to make our own map and bag files, as it seems very interesting.
