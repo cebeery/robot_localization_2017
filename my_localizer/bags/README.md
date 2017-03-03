@@ -3,63 +3,63 @@ This folder contains bag files of a robot navigating maps created in AC109 as we
 <h3>Files</h3>
 
 <h4>Navigation Files</h4> 
-(included in Paul's base repo)
-ac109_1.bag
-ac109_2.bag
-ac109_3.bag
-ac109_4.bag
+(included in Paul's base repo) <br>
+ac109_1.bag <br>
+ac109_2.bag <br>
+ac109_3.bag <br>
+ac109_4.bag 
 
 <h4>Filter-in-action Files</h4> 
-(referred to as "filtered bags"):
-ac109_1_filtered.bag
-ac109_2_filtered.bag
-ac109_3_filtered.bag
-ac109_4_filtered.bag
+(referred to as "filtered bags"): <br>
+ac109_1_filtered.bag <br>
+ac109_2_filtered.bag <br>
+ac109_3_filtered.bag <br>
+ac109_4_filtered.bag 
 
 <h3>Hows</h3>
 
-Our filtered bags, labelled as "ac109_[map number]_filtered.bags", were recorded while both our particle filter and the robot navigation bags were running.  
+Our filtered bags, labelled as "ac109_[map number]_filtered.bags", were recorded while both our particle filter and the robot navigation bags were running. <br> <br> 
 
-To run the navigation bag files:
-$ roscore
-[new tab]
-$ rosparam set /use_sim_time true
-$ roslaunch neato_node set_urdf.launch
-$ roslaunch my_localizer test.launch map_file:=[path to repo]/robot_localization_2017/my_localizer/maps/ac109_[map number].yaml
-[new tab]
-$ rosrun rviz rviz
-[add map, map_pose, pose_cloud to rviz; set orentation to map]
-[new tab]
-$cd [path to bag folder]
-$rosbag play --clock bags/ac109_[map number].bag
-[set 2D pose arrow in rviz at pose of large red map pose arrow]
+To run the navigation bag files:<br>
+$ roscore<br>
+[new tab]<br>
+$ rosparam set /use_sim_time true<br>
+$ roslaunch neato_node set_urdf.launch<br>
+$ roslaunch my_localizer test.launch map_file:=[path to repo]/robot_localization_2017/my_localizer/maps/ac109_[map number].yaml<br>
+[new tab]<br>
+$ rosrun rviz rviz<br>
+[add map, map_pose, pose_cloud to rviz; set orentation to map]<br>
+[new tab]<br>
+$cd [path to bag folder]<br>
+$rosbag play --clock bags/ac109_[map number].bag<br>
+[set 2D pose arrow in rviz at pose of large red map pose arrow]<br><br>
 
-To take filtered bag files:
-$ roscore
-[new tab]
-$ rosparam set /use_sim_time true
-$ roslaunch neato_node set_urdf.launch
-$ roslaunch my_localizer test.launch map_file:=[path to repo]/robot_localization_2017/my_localizer/maps/ac109_[map number].yaml
-[new tab]
-$ rosrun rviz rviz
-[add map, map_pose, pose_cloud to rviz; set orentation to map]
-[new tab]
-$ cd [path into bag folder]
-$ rosbag record -a -O [bag-file-name]
-[new tab]
-$rosbag play --clock bags/ac109_[map number].bag
-[set 2D pose arrow in rviz at pose of large red map pose arrow]
-[ctrl+C rosbag record once rosbag play ends
+To take filtered bag files:<br>
+$ roscore<br>
+[new tab]<br>
+$ rosparam set /use_sim_time true<br>
+$ roslaunch neato_node set_urdf.launch<br>
+$ roslaunch my_localizer test.launch map_file:=[path to repo]/robot_localization_2017/my_localizer/maps/ac109_[map number].yaml<br>
+[new tab]<br>
+$ rosrun rviz rviz<br>
+[add map, map_pose, pose_cloud to rviz; set orentation to map]<br>
+[new tab]<br>
+$ cd [path into bag folder]<br>
+$ rosbag record -a -O [bag-file-name]<br>
+[new tab]<br>
+$rosbag play --clock bags/ac109_[map number].bag<br>
+[set 2D pose arrow in rviz at pose of large red map pose arrow]<br>
+[ctrl+C rosbag record once rosbag play ends<br><br>
 
-To run filtered bag files:
-$ roscore
-[new tab]
-$ rosparam set /use_sim_time true
-$ roslaunch neato_node set_urdf.launch
-$ rosrun rviz rviz
-[add map, map_pose, pose_cloud to rviz; set orentation to map]
-[new tab]
-$cd [path to bag folder]
+To run filtered bag files:<br>
+$ roscore<br>
+[new tab]<br>
+$ rosparam set /use_sim_time true<br>
+$ roslaunch neato_node set_urdf.launch<br>
+$ rosrun rviz rviz<br>
+[add map, map_pose, pose_cloud to rviz; set orentation to map]<br>
+[new tab]<br>
+$cd [path to bag folder]<br>
 $rosbag play --clock bags/ac109_[map number]_filtered.bag
 
 
